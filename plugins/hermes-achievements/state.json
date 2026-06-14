@@ -1,0 +1,54 @@
+{
+  "unlocks": {
+    "claude_confidant": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781310159
+    },
+    "config_surgeon": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781310159
+    },
+    "gemini_cartographer": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781333312
+    },
+    "model_sommelier": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781309368
+    },
+    "night_shift_operator": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781333312
+    },
+    "provider_polyglot": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781333312
+    },
+    "screenshot_hunter": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781333312
+    },
+    "test_suite_tamer": {
+      "evidence": null,
+      "first_tier": "Silver",
+      "unlocked_at": 1781333312
+    },
+    "toolset_cartographer": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781309368
+    },
+    "weekend_warrior": {
+      "evidence": null,
+      "first_tier": "Copper",
+      "unlocked_at": 1781333312
+    }
+  }
+}
