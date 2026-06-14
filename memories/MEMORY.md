@@ -9,3 +9,5 @@ Subagent delegation pattern: subagents (via delegate_task) CAN write files but C
 execute_code sanitizes env — parent process env vars NOT inherited by subprocesses. Workaround on Linux: read from /proc/{ppid}/environ and pass via custom env dict to subprocess.run(). Git push over network works even when local .git/logs/ and .git/refs/ are unwritable (pusher works without reflog).
 §
 Cron Telegram delivery: use deliver='telegram:CHAT_ID' (chat ID from gateway logs). Schedule UTC: Taiwan UTC+8 Sat 8am = '0 0 * * 6'. Test with repeat=1 + '1m' before recurring. Always remove test jobs. Cron prompts must be fully self-contained.
+§
+Full Hermes backup pushed to github.com/locky-bot2/hermes-backup (646 files). Cron job for arXiv LLM papers runs every Sat 8:00 AM Taiwan time (0 0 * * 6 UTC) delivering to Telegram chat 1508030749. Migration restore steps saved as devops/hermes-vps-migration skill.

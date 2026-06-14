@@ -241,6 +241,17 @@ curl -s "https://api.semanticscholar.org/graph/v1/author/search?query=Yann+LeCun
 
 ---
 
+## Web-Search-First Discovery (Complementary Workflow)
+
+For **trending/hot topics from a specific time window** (e.g. "top 5 papers this week"), `web_search` + `web_extract` on individual arXiv pages can be faster and more productive than the API.
+
+```
+web_search(query="arxiv LLM fine-tuning papers 2026 June")       # Broad discovery
+web_extract(urls=["https://arxiv.org/abs/2606.11206"])            # Clean abstract extraction
+```
+
+See `references/web-search-discovery.md` for the full workflow, query patterns, dedup tips, and pitfalls.
+
 ## Complete Research Workflow
 
 1. **Discover**: `python scripts/search_arxiv.py "your topic" --sort date --max 10`

@@ -26,6 +26,10 @@ secrets/
 # Runtime / logs / cache
 logs/
 cache/
+state.db
+state.db-shm
+state.db-wal
+home/
 .cache/
 .cache/*
 tmp/
