@@ -8,4 +8,4 @@ Subagent delegation pattern: subagents (via delegate_task) CAN write files but C
 §
 Cron Telegram delivery: use deliver='telegram:CHAT_ID' (chat ID from gateway logs). Schedule UTC: Taiwan UTC+8 Sat 8am = '0 0 * * 6'. Test with repeat=1 + '1m' before recurring. Always remove test jobs. Cron prompts must be fully self-contained.
 §
-Backup at github.com/locky-bot2/hermes-backup. 2 cron jobs to Telegram 1508030749: 1) arXiv LLM papers Sat 00:00 UTC, 2) git backup Sun 00:00 UTC via ~/.hermes/scripts/hermes-backup.sh (no_agent). Migration skill: devops/hermes-vps-migration.
+Backup: github.com/locky-bot2/hermes-backup. 2 cron jobs to Telegram 1508030749: 1) arXiv LLM papers Sat 00:00 UTC, 2) git backup Sun 00:00 UTC via /opt/data/scripts/hermes-backup.sh (no_agent). Script extracts PAT from ~/.git-credentials → exports GITHUB_TOKEN at runtime. Copy also at ~/.hermes/scripts/ and ~/scripts/. Migration skill: devops/hermes-vps-migration.

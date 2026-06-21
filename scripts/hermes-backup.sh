@@ -7,6 +7,16 @@ set -e
 REPO_DIR="/opt/data"
 TIMESTAMP=$(date +"%Y-%m-%d %H:%M UTC")
 
+# Extract PAT from git-credentials and export as GITHUB_TOKEN env var
+# Format: https://username:TOKEN@github.com
+if [ -f "$HOME/.git-credentials" ]; then
+  TOKEN=$(sed -n 's|https://[^:]*:\([^@]*\)@github.com|\1|p' "$HOME/.git-credentials")
+  if [ -n "$TOKEN" ]; then
+    export GITHUB_TOKEN="$TOKEN"
+    echo "[$TIMESTAMP] GITHUB_TOKEN set from git-credentials"
+  fi
+fi
+
 cd "$REPO_DIR"
 
 # Step 1: Add all changes (respects .gitignore)

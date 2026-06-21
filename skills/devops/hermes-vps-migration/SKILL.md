@@ -136,7 +136,13 @@ echo "[$TIMESTAMP] Backup complete - $(git rev-parse --short HEAD)"
 
 Make executable: `chmod +x ~/.hermes/scripts/hermes-backup.sh`
 
-**IMPORTANT path constraint:** The cron tool requires scripts under `~/.hermes/scripts/` and referenced by just the filename (e.g., `hermes-backup.sh` — not an absolute or home-relative path).
+**Script path resolution:** The cron system resolves relative script paths; test the actual path if it fails. Three reliable approaches, in order of preference:
+
+1. **Absolute path** (most robust): Place the script anywhere and use an absolute path: `script='/opt/data/scripts/hermes-backup.sh'` — no ambiguity.
+2. **Known-good relative path**: Place in `~/scripts/` and reference by filename: `script='hermes-backup.sh'`.
+3. **~/.hermes/scripts/**: Also works — sync a copy there for consistency: `cp ~/scripts/hermes-backup.sh ~/.hermes/scripts/`
+
+If `last_status: error` with `Script not found: PATH`, that PATH tells you exactly where the cron is looking — copy the script there. Don't guess.
 
 A ready-to-use copy of this script is available as `templates/backup-script.sh` under this skill.
 
@@ -178,6 +184,24 @@ Best practice for cron jobs:
 - The GITHUB_TOKEN is set in the Hermes container/systemd environment — accessible from `/proc/<PID>/environ`
 - For the cron job to push to GitHub, the token must be stored in git credential store (`~/.git-credentials`)
 - On restore to a new VPS, the token must be re-configured in the environment AND in the credential store
+
+### 3.2 PAT → GITHUB_TOKEN extraction (recommended for no_agent scripts)
+
+`no_agent=True` scripts run in a bare shell that may not inherit git credential helpers. The most reliable approach: have the backup script extract the PAT from `~/.git-credentials` at runtime and export it as `GITHUB_TOKEN`.
+
+Git-credentials format: `https://USERNAME:TOKEN@github.com`
+
+Extract with `sed`:
+
+```bash
+if [ -f "$HOME/.git-credentials" ]; then
+  TOKEN=*** \1|p' "$HOME/.git-credentials")
+  if [ -n "$TOKEN" ]; then
+    export GITHUB_TOKEN=***  fi
+fi
+```
+
+This makes `$GITHUB_TOKEN` available to `git push` and any subprocesses, regardless of credential helper state.
 
 ### 3.2 What credentials each cron needs
 
