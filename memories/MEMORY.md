@@ -6,8 +6,6 @@ When execute_code or skill tools hit approval/permission walls, give the user th
 §
 Subagent delegation pattern: subagents (via delegate_task) CAN write files but CANNOT run terminal commands or execute_code. For any task requiring shell execution (git push, npm build, deploy scripts), the subagent writes a self-contained script via write_file, then the parent agent runs it (bash script.sh). This is a fundamental tool constraint, not an environment issue. Pass the 'terminal' + 'file' toolsets to subagents so they can write scripts.
 §
-execute_code sanitizes env — parent process env vars NOT inherited by subprocesses. Workaround on Linux: read from /proc/{ppid}/environ and pass via custom env dict to subprocess.run(). Git push over network works even when local .git/logs/ and .git/refs/ are unwritable (pusher works without reflog).
-§
 Cron Telegram delivery: use deliver='telegram:CHAT_ID' (chat ID from gateway logs). Schedule UTC: Taiwan UTC+8 Sat 8am = '0 0 * * 6'. Test with repeat=1 + '1m' before recurring. Always remove test jobs. Cron prompts must be fully self-contained.
 §
-Full Hermes backup pushed to github.com/locky-bot2/hermes-backup (646 files). Cron job for arXiv LLM papers runs every Sat 8:00 AM Taiwan time (0 0 * * 6 UTC) delivering to Telegram chat 1508030749. Migration restore steps saved as devops/hermes-vps-migration skill.
+Backup at github.com/locky-bot2/hermes-backup. 2 cron jobs to Telegram 1508030749: 1) arXiv LLM papers Sat 00:00 UTC, 2) git backup Sun 00:00 UTC via ~/.hermes/scripts/hermes-backup.sh (no_agent). Migration skill: devops/hermes-vps-migration.

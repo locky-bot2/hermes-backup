@@ -1,70 +1,248 @@
 ---
 name: hermes-vps-migration
-description: Complete guide for migrating Hermes Agent to a new VPS by restoring from GitHub backup
+description: Complete lifecycle management for Hermes Agent on a VPS — initial backup setup, weekly auto-backup cron, credential management, and migration restore.
+tags: [vps, backup, migration, devops, cron, github]
+related_skills: [research/arxiv, hermes-agent]
 ---
 
-# Hermes VPS Migration Guide
+# Hermes VPS Lifecycle Management
 
-Use when migrating Hermes Agent to a new VPS after backing up to `github.com/locky-bot2/hermes-backup`.
+Use when setting up a Hermes Agent backup system, configuring weekly auto-backup cron jobs, or migrating to a new VPS.
 
-## Restore Steps
+This skill covers the full lifecycle: initial backup setup, weekly automated backups, credential/auth management for cron jobs, and migration to a new host.
 
-1. **On the new VPS**, clone the backup repo:
+---
+
+## 1. Initial Backup Setup
+
+### 1.1 Create the GitHub repo and push
+
 ```bash
+# From the Hermes data directory (e.g. /opt/data)
 cd /opt/data
-git clone https://github.com/locky-bot2/hermes-backup.git .
+
+# Initialize repo if not already done
+git init
+git remote add origin https://github.com/YOUR_USER/backup-repo.git
 ```
 
-2. **Install Hermes Agent** (v0.16.0):
+### 1.2 Auth setup
+
+The **GITHUB_TOKEN** lives in the parent Hermes process environment. Extract it when needed:
+
+```python
+import subprocess
+r = subprocess.run(["cat", "/proc/<HERMES_PID>/environ"], capture_output=True, text=True)
+lines = r.stdout.split('\0')
+for l in lines:
+    if l.startswith("GITHUB_TOKEN=***        token = l.split("=", 1)[1]
+```
+
+Set up git credential store so cron jobs can push without interactive auth:
+
 ```bash
+git config --global credential.helper store
+git config --global user.name "Your Name"
+git config --global user.email "your-email@users.noreply.github.com"
+```
+
+Write the credential file (~/.git-credentials) with the token-based URL:
+`https://USERNAME:TOKEN@github.com/YOUR_USER/backup-repo.git`
+
+Set file permissions to 600.
+
+### 1.3 .gitignore essentials
+
+Exclude runtime artifacts that change constantly and don't need backing up:
+
+```
+# State DB (runtime, regenerated)
+state.db
+state.db-shm
+state.db-wal
+
+# User home (shell history, local config)
+home/
+
+# Secrets
+.env
+.env.*
+auth.json
+credentials.json
+*.token
+secrets/
+
+# Cache and runtime
+logs/
+cache/
+.cache/
+tmp/
+*.log
+*.pid
+*.lock
+
+# Build artifacts
+node_modules/
+.npm/
+.pnpm-store/
+__pycache__/
+*.pyc
+.venv/
+venv/
+bin/
+
+# User-excluded projects (e.g. weather-app/)
+weather-app/
+```
+
+Pitfall: Adding state.db to .gitignore only prevents tracking NEW files. If state.db was already tracked, run `git rm --cached state.db` to stop tracking it.
+
+### 1.4 First push
+
+```bash
+git add -A
+git commit -m "Initial backup: Hermes VPS"
+git push origin main
+```
+
+---
+
+## 2. Weekly Auto-Backup via Cron
+
+### 2.1 Write the backup script
+
+Create `~/.hermes/scripts/hermes-backup.sh`:
+
+```bash
+#!/bin/bash
+set -e
+REPO_DIR="/opt/data"
+TIMESTAMP=$(date +"%Y-%m-%d %H:%M UTC")
+
+cd "$REPO_DIR"
+git add -A
+
+if git diff --cached --quiet; then
+  echo "[$TIMESTAMP] No changes to back up. Skipping commit."
+  exit 0
+fi
+
+CURRENT_TIME=$(date +"%Y-%m-%d_%H-%M")
+git commit -m "Auto-backup: $CURRENT_TIME UTC"
+git push origin main
+
+echo "[$TIMESTAMP] Backup complete - $(git rev-parse --short HEAD)"
+```
+
+Make executable: `chmod +x ~/.hermes/scripts/hermes-backup.sh`
+
+**IMPORTANT path constraint:** The cron tool requires scripts under `~/.hermes/scripts/` and referenced by just the filename (e.g., `hermes-backup.sh` — not an absolute or home-relative path).
+
+A ready-to-use copy of this script is available as `templates/backup-script.sh` under this skill.
+
+### 2.2 Create the cron job
+
+Use `no_agent=True` for zero LLM cost — the script runs directly:
+
+```
+cronjob action=create
+       name='Hermes VPS Weekly Backup'
+       schedule='0 0 * * 0'           # Sunday 00:00 UTC = 8am Taiwan time
+       script='hermes-backup.sh'
+       no_agent=True
+       deliver='telegram:CHAT_ID'      # or omit for auto-delivery to current chat
+```
+
+#### Delivery semantics (no_agent=True):
+
+- **Non-empty stdout** -> delivered verbatim as the message
+- **Empty stdout** -> silent (nothing sent) — design your script to stay quiet when there's nothing to report
+- **Non-zero exit / timeout** -> error alert sent (can't fail silently)
+
+### 2.3 Test before recurring
+
+Best practice for cron jobs:
+
+1. Create a test job with `repeat=1 schedule='1m'` so it fires quickly
+2. Wait 30-60s for the scheduler tick, or use `cronjob action=run job_id=...` to force immediate execution
+3. Check delivery via `cronjob action=list` (look at `last_status`)
+4. Remove the test job with `cronjob action=remove job_id=...`
+5. Then create the recurring schedule
+
+---
+
+## 3. Credential Management for Cron Jobs
+
+### 3.1 Where tokens live
+
+- The GITHUB_TOKEN is set in the Hermes container/systemd environment — accessible from `/proc/<PID>/environ`
+- For the cron job to push to GitHub, the token must be stored in git credential store (`~/.git-credentials`)
+- On restore to a new VPS, the token must be re-configured in the environment AND in the credential store
+
+### 3.2 What credentials each cron needs
+
+| Cron type | Auth needed | How to provide |
+|-----------|-------------|----------------|
+| Git backup (no_agent=True) | GITHUB_TOKEN | git credential store (`~/.git-credentials`) |
+| Agent-based cron (arXiv search, etc.) | Provider API keys | Already in config.yaml or .env — cron inherits the hermes env |
+
+Cron jobs with `no_agent=True` run as a shell script — they only have access to what the script itself sets up. They do NOT inherit Hermes environment variables.
+
+Cron jobs with `no_agent=False` (default, agent-driven) run inside a full Hermes session and have access to all configured providers, gateway channels, and tools.
+
+---
+
+## 4. Migration to a New VPS
+
+### 4.1 Restore from GitHub
+
+```bash
+cd /opt/data
+git clone https://github.com/YOUR_USER/backup-repo.git .
+
+# Install Hermes
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | sh
 ```
 
-3. **Restore the GITHUB_TOKEN** in the new VPS environment so cron jobs and git operations work.
+### 4.2 Restore credentials
 
-4. **Restore Telegram gateway credentials** (if using Telegram):
-   - The gateway config is in config.yaml under `gateways.telegram`
-   - Telegram API tokens are typically in `.env` or auth files not included in the backup
-   - Reconnect Telegram after Hermes is running: `hermes gateway add telegram`
+The following are **not** in the GitHub backup and must be re-configured:
 
-5. **Verify everything migrated**:
+| Credential | Where to set it |
+|------------|----------------|
+| GITHUB_TOKEN | Environment variable + `~/.git-credentials` |
+| OPENROUTER_API_KEY / provider keys | `.env` file at repo root |
+| TELEGRAM_BOT_TOKEN | `.env` + reconnect gateway |
+| Any other API keys | `.env` file |
+
+### 4.3 Reconnect gateways
+
+Telegram gateways need the TELEGRAM_BOT_TOKEN and TELEGRAM_ALLOWED_USERS to be set in `.env`. After Hermes starts, run:
+
 ```bash
-# Check profiles
-ls -la /opt/data/profiles/
-
-# Check config
-hermes config show
-
-# Check skills
-hermes skills list
-
-# Check cron jobs
-hermes cron list
-
-# Start Hermes
-hermes run
+hermes gateway add telegram
 ```
 
-## What's in the Backup
+(Or use the Hermes dashboard to add the gateway.)
 
-Repo: `github.com/locky-bot2/hermes-backup`
+### 4.4 Verify migration
 
-| Directory | Contents |
-|-----------|----------|
-| config.yaml | Hermes Agent configuration |
-| profiles/ | Agent profiles (charmander, pikachu, squirtle) with their skills |
-| skills/ | All installed skills (400+) |
-| cron/ | Cron job definitions and output history |
-| memories/ | MEMORY.md (agent notes) + USER.md (user profile) |
-| plugins/ | Hermes plugins (achievements) |
-| sessions/ | Session history |
-| webui-mvp/ | WebUI MVP project |
-| SOUL.md | Agent soul/personality file |
-| gateway_state.json, channel_directory.json | Gateway connection state |
+```bash
+ls -la /opt/data/profiles/     # Agent profiles present?
+hermes config show              # Config loaded?
+hermes skills list              # All skills there?
+hermes cron list                # Cron jobs restored?
+```
 
-## What is NOT in the Backup
+The cron jobs from `cron/jobs.json` will be loaded once Hermes starts. Verify they're active with `cronjob action=list`.
 
-- `.env` / `auth.json` / `credentials.json` (secrets)
-- `.npm/` cache (reinstalled by Hermes setup)
-- `cache/`, `logs/`, `.local/` (runtime artifacts)
-- `weather-app/` (excluded by user request)
+---
+
+## 5. Pitfalls
+
+- **state.db is tracked**: If you already committed state.db before adding it to .gitignore, you must `git rm --cached state.db` (and the -shm / -wal variants) to stop tracking it
+- **Script path requirement**: Cron scripts MUST be in `~/.hermes/scripts/` and referenced by filename only. Absolute paths and `~/` relative paths will be rejected
+- **Token scope**: The GITHUB_TOKEN needs `repo` scope for pushing to private repos
+- **First cron run delay**: A `schedule='1m'` test job may not fire immediately — the scheduler runs on a tick (~30-60s). Force-run with `cronjob action=run job_id=...` if needed
+- **Cron context isolation**: Agent-driven cron jobs (no_agent=False) have NO memory, NO conversation history, and NO current context — the prompt must be fully self-contained
+- **Time zone**: Taiwan is UTC+8. Schedule in UTC. Saturday 8am Taiwan = `0 0 * * 6` (midnight UTC Saturday). Sunday 8am Taiwan = `0 0 * * 0` (midnight UTC Sunday)
