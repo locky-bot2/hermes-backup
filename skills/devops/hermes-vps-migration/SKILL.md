@@ -203,7 +203,7 @@ fi
 
 This makes `$GITHUB_TOKEN` available to `git push` and any subprocesses, regardless of credential helper state.
 
-### 3.2 What credentials each cron needs
+### 3.3 What credentials each cron needs
 
 | Cron type | Auth needed | How to provide |
 |-----------|-------------|----------------|
@@ -265,8 +265,8 @@ The cron jobs from `cron/jobs.json` will be loaded once Hermes starts. Verify th
 ## 5. Pitfalls
 
 - **state.db is tracked**: If you already committed state.db before adding it to .gitignore, you must `git rm --cached state.db` (and the -shm / -wal variants) to stop tracking it
-- **Script path requirement**: Cron scripts MUST be in `~/.hermes/scripts/` and referenced by filename only. Absolute paths and `~/` relative paths will be rejected
 - **Token scope**: The GITHUB_TOKEN needs `repo` scope for pushing to private repos
 - **First cron run delay**: A `schedule='1m'` test job may not fire immediately — the scheduler runs on a tick (~30-60s). Force-run with `cronjob action=run job_id=...` if needed
 - **Cron context isolation**: Agent-driven cron jobs (no_agent=False) have NO memory, NO conversation history, and NO current context — the prompt must be fully self-contained
 - **Time zone**: Taiwan is UTC+8. Schedule in UTC. Saturday 8am Taiwan = `0 0 * * 6` (midnight UTC Saturday). Sunday 8am Taiwan = `0 0 * * 0` (midnight UTC Sunday)
+- **no_agent script path resolution**: The cron system resolves relative `script='name.sh'` paths — if it errors `Script not found: /some/path/name.sh`, that path tells you exactly where it's looking. Don't fight it: copy the script there. Absolute paths (`script='/opt/data/scripts/name.sh'`) are explicitly supported and eliminate ambiguity.

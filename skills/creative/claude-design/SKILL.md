@@ -550,11 +550,117 @@ Better:
 
 If verification is limited by environment, say exactly what was and was not verified.
 
-Never say “done” if the file was not actually written.
+Never say "done" if the file was not actually written.
+
+---
+
+## Sketch Mode (Quick Mockups)
+
+When the user wants to **see a design direction before committing** — exploring a UI/UX idea as disposable HTML mockups rather than a polished artifact — use Sketch Mode instead of the full design workflow.
+
+### When to use Sketch Mode
+
+- User says "sketch this screen", "show me what X could look like", "compare layout A vs B", "give me 2-3 takes on this UI", "mockup this before I build"
+- The design is not yet locked and you want to explore directions before committing
+
+### When NOT to use Sketch Mode
+
+- User wants a production component or polished artifact — use the full claude-design workflow
+- User wants a diagram — use `excalidraw` or `architecture-diagram` skills
+- The design is already locked — just build it
+
+### Method
+
+```
+intake → variants → head-to-head → pick winner (or iterate)
+```
+
+### 1. Intake
+
+Before generating variants, get three things (one question at a time):
+
+1. **Feel.** "What should this feel like? Adjectives, emotions, a vibe."
+2. **References.** "What apps, sites, or products capture the feel you're imagining?"
+3. **Core action.** "What's the single most important thing a user does on this screen?"
+
+If the user already gave all three upfront, skip to variants.
+
+### 2. Variants (2-3, never 1)
+
+Each variant is a **single self-contained HTML file**. Each takes a **different design stance**, not different pixel values:
+
+| Axis | Good poles |
+|------|-----------|
+| **Density** | compact / airy / ultra-dense |
+| **Emphasis** | content-first / action-first / tool-first |
+| **Layout** | single-column / sidebar / split-pane |
+| **Aesthetic** | editorial / utilitarian / playful |
+
+**Variant naming:** describe the stance, not the number.
+
+```
+sketches/
+├── 001-calm-editorial/index.html
+├── 001-utilitarian-dense/index.html
+└── 001-playful-split/index.html
+```
+
+### 3. Make Them Real
+
+- Inline `<style>` — no build step
+- System fonts or one Google Font via `<link>` (Tailwind via CDN is fine)
+- Realistic fake content — actual sentences, not "Lorem ipsum"
+- **Interactive**: links clickable, hovers real, at least one state transition
+- Verify visually with browser tools before presenting
+
+Default CSS reset + system font stack:
+
+```html
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: #1a1a1a;
+    background: #fafafa;
+    line-height: 1.5;
+  }
+</style>
+```
+
+### 4. Variant README
+
+Each variant's README.md answers: design stance, key choices (layout, typography, color, interaction), trade-offs, best-for profile.
+
+### 5. Head-to-Head
+
+After all variants are built, present a comparison table with opinions:
+
+```markdown
+| Dimension | Calm editorial | Utilitarian dense | Playful split |
+|-----------|----------------|-------------------|---------------|
+| Density   | Low            | High              | Medium        |
+| Primary action visibility | Low | High | Medium |
+| Feel | Calm, trusted | Sharp, tool-like | Inviting |
+
+**My take:** Utilitarian dense for power users, calm editorial for content-forward audiences.
+```
+
+Let the user pick a winner, combine two, or ask for another round.
+
+### Interactivity Bar
+
+A sketch is interactive enough when the user can:
+1. Click a primary action and something visible happens
+2. See one meaningful state transition (filter, toggle, open/close)
+3. Hover recognizable affordances
+
+More than that is over-engineering a throwaway. Less is a screenshot.
+
+---
 
 ## Final Response Format
-
-Keep final responses short.
 
 Include:
 

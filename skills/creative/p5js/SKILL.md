@@ -521,6 +521,35 @@ When building p5.js sketches:
 | `references/troubleshooting.md` | Performance profiling, per-pixel budgets, common mistakes, browser compatibility, WebGL debugging, font loading issues, pixel density traps, memory leaks, CORS |
 | `templates/viewer.html` | Interactive viewer template: seed navigation (prev/next/random/jump), parameter sliders, download PNG, responsive canvas. Start from this for explorable generative art |
 
+### Pretext Demos (Creative Typography)
+
+Use `@chenglou/pretext` for DOM-free text layout — text reflowing around obstacles, text-as-geometry, kinetic typography, multiline shrink-wrap. See the archived `pretext` skill for the full reference.
+
+**When to use:** creative browser demos where text layout precision matters — flow around moving sprites, ASCII art from real prose, games where obstacles are measured text, per-glyph physics.
+
+**Quick start:**
+```html
+<script type="module">
+import { prepareWithSegments, layoutWithLines } from "https://esm.sh/@chenglou/pretext@0.0.6";
+const prepared = prepareWithSegments(text, "16px Inter");
+const { lines } = layoutWithLines(prepared, 320, 26);
+</script>
+```
+
+**Key patterns:**
+- **Reflow around obstacle:** `layoutNextLineRange` + per-row width function
+- **Text-as-geometry game:** `layoutWithLines` + per-line collision rects
+- **Shatter/particles:** `walkLineRanges` → per-grapheme (x,y) → physics
+- **Multiline shrink-wrap:** `measureLineStats`
+
+**Pitfalls:**
+- Keep `ctx.font` string in sync between measurement and rendering
+- `prepare()`/`prepareWithSegments()` is expensive — call once, cache the handle
+- Use `esm.sh` for CDN import (unpkg 404s on TS-only entry)
+- Skip rows (don't shrink maxWidth to tiny values) when corridor is too narrow
+
+**Official resources:** [pretext.cool](https://www.pretext.cool/), [chenglou.me/pretext](https://chenglou.me/pretext/)
+
 ---
 
 ## Creative Divergence (use only when user requests experimental/creative/unique output)

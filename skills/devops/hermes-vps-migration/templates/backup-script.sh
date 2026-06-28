@@ -10,6 +10,15 @@ set -e
 REPO_DIR="/opt/data"
 TIMESTAMP=$(date +"%Y-%m-%d %H:%M UTC")
 
+# Extract PAT from git-credentials -> GITHUB_TOKEN env var
+# Makes auth available in bare cron shells that may not inherit cred helpers
+if [ -f "$HOME/.git-credentials" ]; then
+  TOKEN=$(sed -n 's|https://[^:]*:\([^@]*\)@github.com|\1|p' "$HOME/.git-credentials")
+  if [ -n "$TOKEN" ]; then
+    export GITHUB_TOKEN="$TOKEN"
+  fi
+fi
+
 cd "$REPO_DIR"
 
 # Stage all changes (respects .gitignore)

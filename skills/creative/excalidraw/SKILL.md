@@ -155,7 +155,58 @@ The shape needs `boundElements` listing the text, and the text needs `containerI
 
 `fixedPoint` coordinates: `top=[0.5,0]`, `bottom=[0.5,1]`, `left=[0,0.5]`, `right=[1,0.5]`
 
-### Drawing Order (z-order)
+### Dark SVG Architecture Diagrams
+
+For professional, dark-themed technical architecture SVGs as standalone HTML files. Use when the user needs a rendered SVG/HTML architecture diagram rather than an excalidraw JSON file.
+
+### When to use
+
+- Software system architecture diagrams (frontend / backend / database layers)
+- Cloud infrastructure (VPC, regions, subnets, managed services)
+- Microservice / service-mesh topology
+- Anything with a tech-infra subject that fits a dark, grid-backed aesthetic
+
+### Quick reference
+
+Generate a dark-themed SVG HTML file with colored component boxes, arrows, legends, and grid background:
+
+```html
+<!-- See archived architecture-diagram skill for full template -->
+<!-- Structure: Header → SVG diagram → Summary cards → Footer -->
+<!-- Component colors: Frontend=cyan, Backend=emerald, Database=violet, AWS/Cloud=amber -->
+```
+
+### Design system
+
+| Component Type | Fill | Stroke |
+|:---|:---|:---|
+| Frontend | rgba(8, 51, 68, 0.4) | #22d3ee (cyan-400) |
+| Backend | rgba(6, 78, 59, 0.4) | #34d399 (emerald-400) |
+| Database | rgba(76, 29, 149, 0.4) | #a78bfa (violet-400) |
+| AWS/Cloud | rgba(120, 53, 15, 0.3) | #fbbf24 (amber-400) |
+
+**Font:** JetBrains Mono (Google Fonts). **Background:** Slate-950 (#020617) with 40px grid pattern.
+
+### Key layout rules
+
+- Z-order: arrows drawn early (behind components)
+- Standard height: 60px (Services), 80-120px (Large components)
+- Minimum 40px gap between components
+- Legend placed below all boundary boxes
+- Boundaries: Security=dashed rose, Regions=dashed amber `8,4`
+
+### Example structure
+
+```svg
+<!-- Grid pattern -->
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+</pattern>
+
+<!-- Component with double-rect masking -->
+<rect x="..." y="..." width="..." height="..." rx="6" fill="#0f172a"/>
+<rect x="..." y="..." width="..." height="..." rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+```
 - Array order = z-order (first = back, last = front)
 - Emit progressively: background zones → shape → its bound text → its arrows → next shape
 - BAD: all rectangles, then all texts, then all arrows

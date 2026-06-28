@@ -168,5 +168,38 @@ No extra dependencies needed — pymupdf covers split, merge, search, and text e
 - marker-pdf is for OCR, scanned docs, equations, complex layouts — install only when needed
 - Both helper scripts accept `--help` for full usage
 - marker-pdf downloads ~2.5GB of models to `~/.cache/huggingface/` on first use
-- For Word docs: `pip install python-docx` (better than OCR — parses actual structure)
-- For PowerPoint: see the `powerpoint` skill (uses python-pptx)
+For Word docs: `pip install python-docx` (better than OCR — parses actual structure)
+For PowerPoint: see the `powerpoint` skill (uses python-pptx)
+
+---
+
+## nano-pdf: Natural-Language PDF Editing
+
+For editing text/typos/titles in existing PDFs using natural language instructions. Requires the `nano-pdf` CLI.
+
+### Prerequisites
+
+```bash
+uv pip install nano-pdf
+```
+
+### Usage
+
+```bash
+nano-pdf edit <file.pdf> <page_number> "<instruction>"
+```
+
+### Examples
+
+```bash
+nano-pdf edit deck.pdf 1 "Change the title to 'Q3 Results' and fix the typo in the subtitle"
+nano-pdf edit report.pdf 3 "Update the date from January to February 2026"
+nano-pdf edit contract.pdf 2 "Change the client name from 'Acme Corp' to 'Acme Industries'"
+```
+
+### Notes
+
+- Page numbers may be 0-based or 1-based depending on version — if the edit hits the wrong page, retry with ±1
+- Always verify the output PDF after editing (check file size or open it)
+- The tool uses an LLM under the hood — requires an API key (check `nano-pdf --help` for config)
+- Works well for text changes; complex layout modifications may need a different approach

@@ -74,3 +74,52 @@ After fetching the transcript, format it based on what the user asks for:
 - **Private/unavailable video**: relay the error and ask the user to verify the URL.
 - **No matching language**: retry without `--language` to fetch any available transcript, then note the actual language to the user.
 - **Dependency missing**: run `uv pip install youtube-transcript-api` and retry.
+
+---
+
+## GIF Search (Tenor API)
+
+Search and download GIFs directly via the Tenor API using curl. Useful for finding reaction GIFs and creating visual content.
+
+### Prerequisites
+
+- `curl` and `jq` (standard on macOS/Linux)
+- `TENOR_API_KEY` environment variable (get a free key at https://developers.google.com/tenor/guides/quickstart)
+
+### Search for GIFs
+
+```bash
+curl -s "https://tenor.googleapis.com/v2/search?q=thumbs+up&limit=5&key=${TENOR_API_KEY}" | jq -r '.results[].media_formats.gif.url'
+```
+
+### Download a GIF
+
+```bash
+URL=$(curl -s "https://tenor.googleapis.com/v2/search?q=celebration&limit=1&key=${TENOR_API_KEY}" | jq -r '.results[0].media_formats.gif.url')
+curl -sL "$URL" -o celebration.gif
+```
+
+### API Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `q` | Search query (URL-encode spaces as `+`) |
+| `limit` | Max results (1-50, default 20) |
+| `key` | API key (from `$TENOR_API_KEY` env var) |
+| `media_filter` | Filter formats: `gif`, `tinygif`, `mp4`, `tinymp4`, `webm` |
+| `contentfilter` | Safety: `off`, `low`, `medium`, `high` |
+
+### Available Media Formats
+
+| Format | Use case |
+|--------|----------|
+| `gif` | Full quality GIF |
+| `tinygif` | Small preview GIF |
+| `mp4` | Video version (smaller file) |
+| `tinymp4` | Small preview video |
+| `webm` | WebM video |
+
+### Notes
+
+- For sending in chat, `tinygif` URLs are lighter weight
+- GIF URLs can be used directly in markdown: `![alt](url)`

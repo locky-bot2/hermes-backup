@@ -1,9 +1,9 @@
 {
-  "last_report_path": "/opt/data/logs/curator/20260620-015543",
-  "last_run_at": "2026-06-20T01:55:43.077464+00:00",
-  "last_run_duration_seconds": 815.501916,
-  "last_run_summary": "auto: no changes; llm: ## Summary\n\nConsolidation pass complete. **28 skills archived → 5 new umbrella skills created.** Original 75 skills reduced to 47.\n\n### Clusters Processed\n\n**1. GitHub cluster** — 6 skills merged into `github` umbrella\nAll 5 github-* skills…\narchived 28 skill(s):\n  • apple-notes — pruned (stale)\n  • apple-reminders — pruned (stale)\n  • arxiv — pruned (stale)\n  • blogwatcher — pruned (stale)\n  • claude-code — pruned (stale)\n  • codebase-inspection — pruned (stale)\n  • codex — pruned (stale)\n  • dogfood — pruned (stale)\n  • findmy — pruned (stale)\n  • github-auth — pruned (stale)\n  … and 18 more\nfull report: hermes curator status",
+  "last_report_path": "/opt/data/logs/curator/20260627-015605",
+  "last_run_at": "2026-06-27T01:56:05.901476+00:00",
+  "last_run_duration_seconds": 407.232437,
+  "last_run_summary": "auto: no changes; llm: ## Summary\n\nProcessed **7 clusters** across the 47-agent-created-skill corpus, resulting in **1 new umbrella skill**, **5 patched umbrellas**, and **10 archived narrow siblings**.\n\n### Clusters processed\n\n**1. Audio/Music (4 siblings → 1 um…\narchived 10 skill(s):\n  • architecture-diagram → excalidraw\n  • ascii-video → ascii-art\n  • gif-search → youtube-content\n  • nano-pdf → ocr-and-documents\n  • pretext → p5js\n  • sketch → claude-design\n  • audiocraft-audio-generation — pruned (stale)\n  • heartmula — pruned (stale)\n  • songsee — pruned (stale)\n  • songwriting-and-ai-music — pruned (stale)\nfull report: hermes curator status\nkeep an umbrella stable: hermes curator pin ascii-art",
   "last_run_summary_shown_at": null,
   "paused": false,
-  "run_count": 1
+  "run_count": 2
 }

@@ -309,14 +309,76 @@ When tools above don't have what's needed, generate ASCII art directly using the
 - Max height: 15 lines for banners, 25 for scenes
 - Monospace only: output must render correctly in fixed-width fonts
 
-## Decision Flow
+## Tool 10: ASCII Video Production
+
+Convert video/audio to colored ASCII MP4/GIF animations. Uses Python + ffmpeg + Pillow. 
+
+See the full pipeline at the archived skill, key reference: `ascii-video` used a 6-stage pipeline:
+
+```
+INPUT → ANALYZE → SCENE_FN → TONEMAP → SHADE → ENCODE
+```
+
+**Creative standard:** ASCII characters are the medium; cinema is the standard. Every frame should reward viewing. Never flat black backgrounds.
+
+### Modes
+
+| Mode | Input | Output |
+|------|-------|--------|
+| **Video-to-ASCII** | Video file | ASCII recreation of source footage |
+| **Audio-reactive** | Audio file | Generative visuals driven by audio features |
+| **Generative** | None (or seed params) | Procedural ASCII animation |
+| **Hybrid** | Video + audio | ASCII video with audio-reactive overlays |
+| **Lyrics/text** | Audio + text/SRT | Timed text with visual effects |
+
+### Stack
+
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| Core | Python 3.10+, NumPy | Math, array ops, vectorized effects |
+| Signal | SciPy | FFT, peak detection (audio modes) |
+| Imaging | Pillow (PIL) | Font rasterization, frame decoding |
+| Video I/O | ffmpeg (CLI) | Decode input, encode output, mux audio |
+| Parallel | concurrent.futures | N workers for batch/clip rendering |
+| Optional | OpenCV | Video frame sampling, edge detection |
+
+### Key implementation notes
+
+- **Use adaptive tonemap**, not linear multipliers: percentile-based normalization
+- **ffmpeg pipe**: never `stderr=subprocess.PIPE` — buffer fills at 64KB and deadlocks
+- **Font validation**: validate palettes at init — render each char, check for blank
+- **Per-clip architecture**: render segmented videos as separate clips for parallelism
+
+### Quick start pattern
+
+```python
+# Core pipeline imports
+import numpy as np
+from PIL import Image, ImageFont, ImageDraw
+# ffmpeg for encoding via subprocess
+```
+
+### Aesthetic dimensions
+
+| Dimension | Options |
+|-----------|---------|
+| Character palette | Density ramps, block elements, symbols, scripts |
+| Color strategy | HSV, OKLAB, discrete RGB, monochrome, temperature |
+| Background | Sine fields, fBM noise, domain warp, voronoi |
+| Effects | Rings, spirals, tunnel, vortex, waves, aurora, fire |
+| Particles | Sparks, snow, rain, bubbles, runes, flocking |
+| Shader mood | Retro CRT, clean modern, glitch, cinematic |
+| Grid density | xs(8px) through xxl(40px), mixed per layer |
+
+### Decision Flow
 
 1. **Text as a banner** → pyfiglet if installed, otherwise asciified API via curl
 2. **Wrap a message in fun character art** → cowsay
 3. **Add decorative border/frame** → boxes (can combine with pyfiglet/asciified)
 4. **Art of a specific thing** (cat, rocket, dragon) → ascii.co.uk via curl + parsing
 5. **Convert an image to ASCII** → ascii-image-converter or jp2a
-6. **QR code** → qrenco.de via curl
-7. **Weather/moon art** → wttr.in via curl
-8. **Something custom/creative** → LLM generation with Unicode palette
-9. **Any tool not installed** → install it, or fall back to next option
+6. **ASCII video** → Python + ffmpeg pipeline (section 10)
+7. **QR code** → qrenco.de via curl
+8. **Weather/moon art** → wttr.in via curl
+9. **Something custom/creative** → LLM generation with Unicode palette
+10. **Any tool not installed** → install it, or fall back to next option
