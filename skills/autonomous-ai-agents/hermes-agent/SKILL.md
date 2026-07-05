@@ -876,7 +876,10 @@ hermes config set auxiliary.vision.model <model_name>
 | Env variables | `hermes config env-path` or [Env vars reference](https://hermes-agent.nousresearch.com/docs/reference/environment-variables) |
 | CLI commands | `hermes --help` or [CLI reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands) |
 | Gateway logs | `~/.hermes/logs/gateway.log` |
+| Gateway diagnostics | `references/gateway-diagnostics.md` — systematic troubleshooting for hung/crash-looping gateways |
 | Session files | `hermes sessions browse` (reads state.db) |
+| Subagent delegation | `references/subagent-delegation.md` — delegate_task patterns, script-write-then-execute, team-agent profiles |
+| In-repo skill authoring | `references/skill-authoring-in-repo.md` — writing skills for the Hermes Agent repo |
 | Source code | `~/.hermes/hermes-agent/` |
 
 ---

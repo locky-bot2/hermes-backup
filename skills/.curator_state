@@ -1,9 +1,9 @@
 {
-  "last_report_path": "/opt/data/logs/curator/20260627-015605",
-  "last_run_at": "2026-06-27T01:56:05.901476+00:00",
-  "last_run_duration_seconds": 407.232437,
-  "last_run_summary": "auto: no changes; llm: ## Summary\n\nProcessed **7 clusters** across the 47-agent-created-skill corpus, resulting in **1 new umbrella skill**, **5 patched umbrellas**, and **10 archived narrow siblings**.\n\n### Clusters processed\n\n**1. Audio/Music (4 siblings → 1 um…\narchived 10 skill(s):\n  • architecture-diagram → excalidraw\n  • ascii-video → ascii-art\n  • gif-search → youtube-content\n  • nano-pdf → ocr-and-documents\n  • pretext → p5js\n  • sketch → claude-design\n  • audiocraft-audio-generation — pruned (stale)\n  • heartmula — pruned (stale)\n  • songsee — pruned (stale)\n  • songwriting-and-ai-music — pruned (stale)\nfull report: hermes curator status\nkeep an umbrella stable: hermes curator pin ascii-art",
+  "last_report_path": "/opt/data/logs/curator/20260704-015629",
+  "last_run_at": "2026-07-04T01:56:29.042407+00:00",
+  "last_run_duration_seconds": 926.415234,
+  "last_run_summary": "auto: no changes; llm: All consolidation is complete. The content of all 3 narrow skills was cleanly absorbed into the umbrella's `references/` directory, and the original skills were removed from the active skill tree via `skill_manage delete` with `absorbed_int…\narchived 3 skill(s):\n  • hermes-agent-skill-authoring → hermes-agent\n  • hermes-gateway-diagnostics → hermes-agent\n  • subagent-delegation → hermes-agent\nfull report: hermes curator status\nkeep an umbrella stable: hermes curator pin hermes-agent",
   "last_run_summary_shown_at": null,
   "paused": false,
-  "run_count": 2
+  "run_count": 3
 }

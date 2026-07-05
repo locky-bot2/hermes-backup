@@ -1,9 +1,9 @@
 {
   "agent:main:telegram:dm:1508030749": {
     "session_key": "agent:main:telegram:dm:1508030749",
-    "session_id": "20260625_145538_111467c3",
-    "created_at": "2026-06-25T14:55:38.399770",
-    "updated_at": "2026-06-25T23:16:09.825764",
+    "session_id": "20260704_115757_4e8840cc",
+    "created_at": "2026-07-04T11:57:57.929953",
+    "updated_at": "2026-07-04T11:58:49.895849",
     "display_name": "Lock Abraham",
     "platform": "telegram",
     "chat_type": "dm",
@@ -12,10 +12,10 @@
     "cache_read_tokens": 0,
     "cache_write_tokens": 0,
     "total_tokens": 0,
-    "last_prompt_tokens": 21748,
+    "last_prompt_tokens": 18714,
     "estimated_cost_usd": 0.0,
     "cost_status": "unknown",
-    "expiry_finalized": true,
+    "expiry_finalized": false,
     "suspended": false,
     "resume_pending": false,
     "resume_reason": null,
@@ -33,7 +33,7 @@
       "user_name": "Lock Abraham",
       "thread_id": null,
       "chat_topic": null,
-      "message_id": "150"
+      "message_id": "179"
     }
   }
 }
